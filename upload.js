@@ -199,7 +199,7 @@ program
       testProjectId: command.testProject,
     };
     updateConfig(options);
-    uploadTestProject(options.projectId, filePath);
+    uploadTestProject(options.testProjectId, options.projectId, filePath);
   });
 
 program.parse(process.argv);
