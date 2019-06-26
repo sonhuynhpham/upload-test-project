@@ -136,8 +136,8 @@ const katalonRequest = {
   uploadFile(uploadUrl, filePath) {
     return http.uploadToS3(uploadUrl, filePath);
   },
-  uploadTestProject(token, projectId, batch, fileName, uploadedPath, opts = {}) {
-    const url = `${TEST_PROJECT_URI}/${projectId}/update-package`;
+  uploadTestProject(token, testProjectId, projectId, batch, fileName, uploadedPath, opts = {}) {
+    const url = `${TEST_PROJECT_URI}/${testProjectId}/update-package`;
     const options = {
       auth: {
         bearer: token,
@@ -163,7 +163,7 @@ function updateConfig(commandLineConfigs) {
 
 let token;
 
-function uploadTestProject(projectId, filePath) {
+function uploadTestProject(testProjectId, projectId, filePath) {
   katalonRequest.requestToken(configs.email, configs.apikey)
     .then(({ body }) => {
       token = body.access_token;
@@ -176,7 +176,7 @@ function uploadTestProject(projectId, filePath) {
         .then(() => {
           const batch = `${new Date().getTime()}-${uuidv4()}`;
           const fileName = path.basename(filePath);
-          katalonRequest.uploadTestProject(token, projectId, batch, fileName, uploadedPath);
+          katalonRequest.uploadTestProject(token, testProjectId, projectId, batch, fileName, uploadedPath);
         });
     })
     .then(() => logger.info('Uploaded file:', filePath))
@@ -189,12 +189,14 @@ program
   .option('-u, --username <value>', 'Email')
   .option('-p, --password <value>', 'Password')
   .option('-P, --project <value>', 'Katalon Project Id')
+  .option('-t, --test-project <value>', 'Katalon Test Project Id')
   .action((filePath, command) => {
     const options = {
       serverUrl: command.serverUrl,
       email: command.username,
       apikey: command.password,
       projectId: command.project,
+      testProjectId: command.testProject,
     };
     updateConfig(options);
     uploadTestProject(options.projectId, filePath);
